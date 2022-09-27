@@ -54,7 +54,7 @@ export const defaultProps = {
     weekStartOn: 6,
     startHour: 9,
     endHour: 17,
-    step: 60,
+    step: 30,
   },
   day: {
     startHour: 9,

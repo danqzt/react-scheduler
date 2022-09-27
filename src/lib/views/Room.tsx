@@ -5,38 +5,30 @@ import {
   addDays,
   format,
   eachMinuteOfInterval,
-  isSameDay,
-  differenceInDays,
-  isBefore,
   isToday,
   setMinutes,
   setHours,
-  isWithinInterval,
-  isAfter,
   endOfDay,
   startOfDay,
   addMinutes,
+  isSameMinute,
 } from "date-fns";
-import TodayTypo from "../components/common/TodayTypo";
-import EventItem from "../components/events/EventItem";
 import { useAppState } from "../hooks/useAppState";
 import {
   CellRenderedProps,
   DayHours,
   DefaultRecourse,
-  ProcessedEvent,
 } from "../types";
 import { WeekDays } from "./Month";
 import {
   calcCellHeight,
-  calcMinuteHeight,
   getResourcedEvents,
 } from "../helpers/generals";
 import { WithResources } from "../components/common/WithResources";
 import { Cell } from "../components/common/Cell";
-import TodayEvents from "../components/events/TodayEvents";
 import { TableGrid } from "../styles/styles";
 import { MULTI_DAY_EVENT_HEIGHT } from "../helpers/constants";
+import RoomEvents from "../components/events/RoomEvents";
 
 export interface RoomProps {
   weekDays: WeekDays[];
@@ -49,12 +41,11 @@ export interface RoomProps {
 
 const Room = () => {
   const {
-    week,
+    room,
     selectedDate,
     height,
     events,
     triggerDialog,
-    handleGotoDay,
     remoteEvents,
     triggerLoading,
     handleState,
@@ -66,7 +57,7 @@ const Room = () => {
   } = useAppState();
 
   const { weekStartOn, weekDays, startHour, endHour, step, cellRenderer } =
-    week!;
+    room!;
   const _weekStart = startOfWeek(selectedDate, { weekStartsOn: weekStartOn });
   const daysList = weekDays.map((d) => addDays(_weekStart, d));
   const weekStart = startOfDay(daysList[0]);
@@ -81,7 +72,6 @@ const Room = () => {
     { step: step }
   );
   const CELL_HEIGHT = calcCellHeight(height, hours.length);
-  const MINUTE_HEIGHT = calcMinuteHeight(CELL_HEIGHT, step);
   const MULTI_SPACE = MULTI_DAY_EVENT_HEIGHT;
 
   const fetchEvents = useCallback(async () => {
@@ -107,66 +97,7 @@ const Room = () => {
     // eslint-disable-next-line
   }, [fetchEvents]);
 
-  const renderMultiDayEvents = (events: ProcessedEvent[], today: Date) => {
-    const isFirstDayInWeek = isSameDay(weekStart, today);
-    const allWeekMulti = events.filter(
-      (e) =>
-        differenceInDays(e.end, e.start) > 0 &&
-        daysList.some((weekday) =>
-          isWithinInterval(weekday, {
-            start: startOfDay(e.start),
-            end: endOfDay(e.end),
-          })
-        )
-    );
-
-    const multiDays = allWeekMulti
-      .filter((e) =>
-        isBefore(e.start, weekStart)
-          ? isFirstDayInWeek
-          : isSameDay(e.start, today)
-      )
-      .sort((a, b) => b.end.getTime() - a.end.getTime());
-    return multiDays.map((event, i) => {
-      const hasPrev = isBefore(startOfDay(event.start), weekStart);
-      const hasNext = isAfter(endOfDay(event.end), weekEnd);
-      const eventLength =
-        differenceInDays(
-          hasNext ? weekEnd : event.end,
-          hasPrev ? weekStart : event.start
-        ) + 1;
-      const prevNextEvents = events.filter((e) =>
-        isFirstDayInWeek
-          ? false
-          : e.event_id !== event.event_id && //Exclude it's self
-            isWithinInterval(today, { start: e.start, end: e.end })
-      );
-
-      let index = i;
-      if (prevNextEvents.length) {
-        index += prevNextEvents.length;
-      }
-
-      return (
-        <div
-          key={event.event_id}
-          className="rs__multi_day"
-          style={{
-            top: index * MULTI_SPACE + 45,
-            width: `${100 * eventLength}%`,
-          }}
-        >
-          <EventItem
-            event={event}
-            hasPrev={hasPrev}
-            hasNext={hasNext}
-            multiday
-          />
-        </div>
-      );
-    });
-  };
-
+  
   const renderTable = (resource?: DefaultRecourse) => {
     let recousedEvents = events;
     if (resource) {
@@ -178,16 +109,7 @@ const Room = () => {
       );
     }
 
-    const allWeekMulti = events.filter(
-      (e) =>
-        differenceInDays(e.end, e.start) > 0 &&
-        daysList.some((weekday) =>
-          isWithinInterval(weekday, {
-            start: startOfDay(e.start),
-            end: endOfDay(e.end),
-          })
-        )
-    );
+   
     // Equalizing multi-day section height
     const headerHeight = MULTI_SPACE * 1 + 45;
     const rooms = ["Auditorium", "Audio Visual", "Sunday School"];
@@ -241,22 +163,21 @@ const Room = () => {
                   }`}
                 >
                   {/* Events of each day - run once on the top hour column */}
-                  {/* {i === 0 && (
-                    <TodayEvents
+                  {i === 0 && (
+                    <RoomEvents
                       todayEvents={recousedEvents
                         .filter(
                           (e) =>
-                            isSameDay(date, e.start) &&
-                            !differenceInDays(e.end, e.start)
+                            isSameMinute(date, e.start) 
                         )
                         .sort((a, b) => a.end.getTime() - b.end.getTime())}
                       today={date}
-                      minuteHeight={MINUTE_HEIGHT}
+                      minuteHeight={CELL_HEIGHT}
                       startHour={startHour}
                       step={step}
                       direction={direction}
                     />
-                  )} */}
+                  )}
                   
                   {cellRenderer ? (
                     cellRenderer({
