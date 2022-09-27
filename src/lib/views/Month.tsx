@@ -163,7 +163,7 @@ const Month = () => {
                     handleGotoDay(today);
                   }}
                 >
-                  {format(today, "dd")}
+                  {format(today, "dd")} 
                 </Typography>
               </Avatar>
               <MonthEvents

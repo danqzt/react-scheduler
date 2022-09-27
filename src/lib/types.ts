@@ -6,6 +6,7 @@ import { DialogProps, GridSize } from "@mui/material";
 import { Locale } from "date-fns";
 import { SelectOption } from "./components/inputs/SelectInput";
 import { View } from "./components/nav/Navigation";
+import { RoomProps } from "./views/Room";
 
 export type DayHours =
   | 0
@@ -140,6 +141,7 @@ export interface SchedulerProps {
   week: WeekProps | null;
   /**Day view settings */
   day: DayProps | null;
+  room: RoomProps | null;
   /**Initial date selected */
   selectedDate: Date;
   /**Events to display */

@@ -14,7 +14,7 @@ import { MonthDateBtn } from "./MonthDateBtn";
 import { useAppState } from "../../hooks/useAppState";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-export type View = "month" | "week" | "day";
+export type View = "month" | "week" | "day" | "room";
 
 const Navigation = () => {
   const { selectedDate, view, week, handleState, getViews } = useAppState();
@@ -45,6 +45,10 @@ const Navigation = () => {
         return (
           <DayDateBtn selectedDate={selectedDate} onChange={handleState} />
         );
+        case "room":
+          return (
+            <DayDateBtn selectedDate={selectedDate} onChange={handleState} />
+          );
       default:
         return "";
     }

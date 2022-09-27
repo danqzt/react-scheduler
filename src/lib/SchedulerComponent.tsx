@@ -7,6 +7,7 @@ import { Month } from "./views/Month";
 import { Day } from "./views/Day";
 import { Table, Wrapper } from "./styles/styles";
 import { useMemo } from "react";
+import { Room } from "./views/Room";
 
 const SchedulerComponent = () => {
   const { loading, view, dialog, resources, resourceViewMode } = useAppState();
@@ -19,8 +20,10 @@ const SchedulerComponent = () => {
         return <Week />;
       case "day":
         return <Day />;
+      case "room":
+          return <Room/>;
       default:
-        return "";
+        return '';
     }
   }, [view]);
 
